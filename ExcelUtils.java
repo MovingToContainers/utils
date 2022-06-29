@@ -20,10 +20,12 @@ public class ExcelUtils {
 
 
     @SneakyThrows
-    public static void main(String[] args) {
+       public static void main(String[] args) {
         Workbook workbook = new XSSFWorkbook();
 
-        Map<String, String> name = Map.of("Name", "sab", "Age", "30");
+        Map<String, String> map = Map.of("Name", "sab", "Age", "30");
+        Map<String, String> map1 = Map.of("Name", "sab1", "Age", "31");
+        List<Map<String, String>> listMap = List.of(map, map1);
 
         Sheet sheet = workbook.createSheet("Persons");
         sheet.setColumnWidth(0, 6000);
@@ -47,14 +49,23 @@ public class ExcelUtils {
         headerCell.setCellValue("Age");
         headerCell.setCellStyle(headerStyle);
 
-        Row row = sheet.createRow(1);
 
+        AtomicInteger rowNum = new AtomicInteger(1);
+        
+        
+        listMap.forEach(tempMap -> {
+            Row row = sheet.createRow(rowNum.get()); // increment the row here
             sheet.getRow(0).cellIterator().forEachRemaining(cell -> {
-               if(name.containsKey(cell.getStringCellValue())) {
-                   Cell cell1 = row.createCell(cell.getColumnIndex());
-                   cell1.setCellValue(name.get(cell.getStringCellValue()));
-               }
+                if (tempMap.containsKey(cell.getStringCellValue())) {
+                    Cell cell1 = row.createCell(cell.getColumnIndex());
+                    cell1.setCellValue(tempMap.get(cell.getStringCellValue()));
+                }
             });
+            rowNum.getAndIncrement();
+        });
+        
+        
+
 
         File currDir = new File(".");
         String path = currDir.getAbsolutePath();
